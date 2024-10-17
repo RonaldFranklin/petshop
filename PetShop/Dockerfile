@@ -1,21 +1,23 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER app
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    clang zlib1g-dev
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["PetShop/PetShop.csproj", "PetShop/"]
-RUN dotnet restore "./PetShop/PetShop.csproj"
+RUN dotnet restore "./PetShop/./PetShop.csproj"
 COPY . .
 WORKDIR "/src/PetShop"
 RUN dotnet build "./PetShop.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./PetShop.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
+RUN dotnet publish "./PetShop.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
+FROM base AS final
 WORKDIR /app
-EXPOSE 8080
 COPY --from=publish /app/publish .
-ENTRYPOINT ["./PetShop"]
+ENTRYPOINT ["dotnet", "PetShop.dll"]
