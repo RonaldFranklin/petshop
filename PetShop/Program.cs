@@ -22,6 +22,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var key = Encoding.ASCII.GetBytes(Settings.Secret);
 
 builder.Services.AddAuthentication(x =>
@@ -72,6 +82,8 @@ builder.Services.AddTransient<IPetService, PetService>();
 builder.Services.AddTransient<ISchedulingService, SchedulingService>();
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

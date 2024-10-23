@@ -24,7 +24,7 @@ public class ServiceEndpoints : CarterModule
                    right => Results.Ok(ApiResponse<List<ServiceDTO>>.Ok(right))
                );
            })
-       .RequireAuthorization("Admin")
+       .RequireAuthorization()
        .WithName("GetServices")
        .WithOpenApi();
 

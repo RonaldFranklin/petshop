@@ -3,6 +3,7 @@ using PetShop.Data;
 using PetShop.Modules.Pets;
 using PetShop.Modules.Scheduling.Interfaces;
 using PetShop.Modules.Services;
+using PetShop.Modules.Users;
 
 namespace PetShop.Modules.Scheduling;
 
@@ -56,7 +57,13 @@ public class SchedulingRepository : ISchedulingRepository
                              Race = p.Pet.Race,
                              Size = p.Pet.Size,
                              OwnerId = p.Pet.OwnerId,
-                             Owner = null,
+                             Owner = new UserModel()
+                             {
+                                 Name = p.Pet.Owner.Name,
+                                 Phone = p.Pet.Owner.Phone,
+                                 Email = p.Pet.Owner.Email,
+                                 Address = p.Pet.Owner.Address
+                             },
                              Schedulings = null
                          },
                          Service = new ServiceModel
@@ -91,7 +98,13 @@ public class SchedulingRepository : ISchedulingRepository
                             Race = p.Pet.Race,
                             Size = p.Pet.Size,
                             OwnerId = p.Pet.OwnerId,
-                            Owner = null,
+                            Owner = new UserModel()
+                            {
+                                Name = p.Pet.Owner.Name,
+                                Phone = p.Pet.Owner.Phone,
+                                Email = p.Pet.Owner.Email,
+                                Address = p.Pet.Owner.Address
+                            },
                             Schedulings = null
                         },
                         Service = new ServiceModel
@@ -108,12 +121,74 @@ public class SchedulingRepository : ISchedulingRepository
 
     public async Task<IEnumerable<SchedulingModel>> GetSchedulingsAsync()
     {
-        return await _context.Schedulings.AsNoTracking().ToListAsync();
+        return await _context.Schedulings.AsNoTracking().Select(p => new SchedulingModel
+        {
+            Id = p.Id,
+            Date = p.Date,
+            Time = p.Time,
+            PetId = p.PetId,
+            Status = p.Status,
+            ServiceId = p.ServiceId,
+            Pet = new PetModel
+            {
+                Id = p.Pet.Id,
+                Name = p.Pet.Name,
+                Race = p.Pet.Race,
+                Size = p.Pet.Size,
+                OwnerId = p.Pet.OwnerId,
+                Owner = new UserModel()
+                {
+                    Name = p.Pet.Owner.Name,
+                    Phone = p.Pet.Owner.Phone,
+                    Email = p.Pet.Owner.Email,
+                    Address = p.Pet.Owner.Address
+                },
+                Schedulings = null
+            },
+            Service = new ServiceModel
+            {
+                Id = p.Service.Id,
+                ServiceType = p.Service.ServiceType,
+                Price = p.Service.Price,
+                Schedulings = null
+            }
+        }).ToListAsync();
     }
 
     public async Task<IEnumerable<SchedulingModel>> GetSchedulingsAsync(int ownerId)
     {
-        return await _context.Schedulings.AsNoTracking().Where(x => x.Pet.OwnerId == ownerId).ToListAsync();
+        return await _context.Schedulings.AsNoTracking().Where(x => x.Pet.OwnerId == ownerId).Select(p => new SchedulingModel
+        {
+            Id = p.Id,
+            Date = p.Date,
+            Time = p.Time,
+            PetId = p.PetId,
+            Status = p.Status,
+            ServiceId = p.ServiceId,
+            Pet = new PetModel
+            {
+                Id = p.Pet.Id,
+                Name = p.Pet.Name,
+                Race = p.Pet.Race,
+                Size = p.Pet.Size,
+                OwnerId = p.Pet.OwnerId,
+                Owner = new UserModel()
+                {
+                    Name = p.Pet.Owner.Name,
+                    Phone = p.Pet.Owner.Phone,
+                    Email = p.Pet.Owner.Email,
+                    Address = p.Pet.Owner.Address
+                },
+                Schedulings = null
+            },
+            Service = new ServiceModel
+            {
+                Id = p.Service.Id,
+                ServiceType = p.Service.ServiceType,
+                Price = p.Service.Price,
+                Schedulings = null
+            }
+        }).ToListAsync();
     }
 
     public async Task<SchedulingModel> InsertSchedulingAsync(SchedulingModel schedulingModel)
